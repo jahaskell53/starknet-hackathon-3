@@ -1,29 +1,31 @@
 use starknet::ContractAddress;
+// use openzeppelin::token::erc20::interface::IERC20;
+//use openzeppelin::token::erc20::ERC20;
 
-#[derive(Drop, Serde, starknet::Store)]
-enum target {
-    blockTime: u128,
-    amount: u128,
-}
+ // #[derive(Drop, Serde, starknet::Store)]
+ // enum target {
+ //   blockTime: u128,
+ //    amount: u128,
+ //}
 
-#[starknet::interface]
-trait IERC20<TContractState> {
-    fn name(self: @TContractState) -> felt252;
-    fn symbol(self: @TContractState) -> felt252;
-    fn decimals(self: @TContractState) -> u8;
-    fn total_supply(self: @TContractState) -> u256;
-    fn balanceOf(self: @TContractState, account: ContractAddress) -> u256;
-    fn allowance(self: @TContractState, owner: ContractAddress, spender: ContractAddress) -> u256;
-    fn transfer(ref self: TContractState, recipient: ContractAddress, amount: u256) -> bool;
-    fn transferFrom(
-        ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
-    ) -> bool;
-    fn approve(ref self: TContractState, spender: ContractAddress, amount: u256) -> bool;
-}
+ // #[starknet::interface]
+ // trait IERC20<TContractState> {
+ //   fn name(self: @TContractState) -> felt252;
+ //   fn symbol(self: @TContractState) -> felt252;
+ //   fn decimals(self: @TContractState) -> u8;
+ //   fn total_supply(self: @TContractState) -> u256;
+ //   fn balanceOf(self: @TContractState, account: ContractAddress) -> u256;
+ //   fn allowance(self: @TContractState, owner: ContractAddress, spender: ContractAddress) -> u256;
+ //   fn transfer(ref self: TContractState, recipient: ContractAddress, amount: u256) -> bool;
+ //   fn transferFrom(
+ //       ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+ //   ) -> bool;
+ //   fn approve(ref self: TContractState, spender: ContractAddress, amount: u256) -> bool;
+ //}
 
 #[starknet::interface]
 trait IWagerContract<TContractState> {
-    fn bet(ref self: TContractState, text: felt252, amount: u256, resolution_date: u256, mediator: ContractAddress);
+    fn bet(ref self: TContractState, text: felt252, amount: u256, resolution_date: u256, mediator: ContractAddress);//, token_address: IERC20);
     fn accept(ref self: TContractState, id: u32);
     fn decide(ref self: TContractState, id: u32, winner: ContractAddress);
 
@@ -46,10 +48,11 @@ mod WagerContract {
     use core::traits::TryInto;
     use starknet::{get_caller_address, ContractAddress, get_contract_address, Zeroable, get_block_timestamp, contract_address_const};
 
-    use super::{IERC20Dispatcher, IERC20DispatcherTrait, target};
+    // use super::{IERC20Dispatcher, IERC20DispatcherTrait, target};
 
     #[storage]
     struct Storage {
+        // tokens: LegacyMap::<u32, IERC20Dispatcher>,
         texts: LegacyMap::<u32, felt252>,
         amounts: LegacyMap::<u32, u256>,
         predictors: LegacyMap::<u32, ContractAddress>,
@@ -59,6 +62,35 @@ mod WagerContract {
         resolution_dates: LegacyMap::<u32, u256>,
         next_id: u32,
     }
+
+    #[derive(Drop, Serde)]
+    enum targetOption {
+        targetTime,
+        targetAmount,
+    }
+
+    //#[event]
+    //#[derive(Drop, starknet::Event)]
+    //enum Event {
+    //    Deposit: Deposit,
+    //    Withdraw: Withdraw,
+    //    PaidProcessingFee: PaidProcessingFee,
+    //    OwnableEvent: ownable_component::Event
+    //}
+
+    //fn transfer(recipient: ContractAddress, amount: u256) {
+    //    let sender = get_caller_address();
+    //    transfer_helper(sender, recipient, amount);
+    //}
+
+    //fn transfer_helper(sender: ContractAddress, recipient: ContractAddress, amount: u256) {
+    //    assert(!sender.is_zero(), 'ERC20: transfer from 0');
+    //    assert(!recipient.is_zero(), 'ERC20: transfer to 0');
+    //    balances::write(sender, balances::read(sender) - amount);
+    //    balances::write(recipient, balances::read(recipient) + amount);
+    //    Transfer(sender, recipient, amount);
+    //}
+    
 
     #[constructor]
     fn constructor(ref self: ContractState) {
@@ -84,8 +116,9 @@ mod WagerContract {
     #[abi(embed_v0)]
     impl WagerContractImpl of super::IWagerContract<ContractState> {
 
-         fn bet(ref self: ContractState, text: felt252, amount: u256, resolution_date: u256, mediator: ContractAddress) {
+         fn bet(ref self: ContractState, text: felt252, amount: u256, resolution_date: u256, mediator: ContractAddress) {//, token_address: IERC20) {
             assert(amount != 0, 'Amount cannot be 0');
+            assert(mediator != get_caller_address(), 'Amount cannot be 0');
 
             let id = self.next_id.read(); 
 

@@ -14,6 +14,7 @@ url = "https://starknet-testnet.public.blastapi.io/rpc/v0_6"
 alexandria_storage = { git = "https://github.com/keep-starknet-strange/alexandria.git", tag = "cairo-v2.3.0-rc0" }
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry", tag = "v0.16.0" }
 starknet = "2.3.0"
+#openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.8.1" }
 
 [[target.starknet-contract]]
 casm = true
