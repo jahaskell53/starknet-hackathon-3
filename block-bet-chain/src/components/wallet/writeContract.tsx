@@ -51,9 +51,24 @@ const erc20ABI = [
   },
 ];
 const contractAddress =
-  "0x1235451dbfb2d16d6c18a00725bec5ae595556e3348d4350aa8f25757227ee0";
+  "0x0795d7470221e243e3da6475c463f313ec8884d5df2f7fb3e0259ff8fbea06ba";
 
-export default function WriteContract() {
+interface WriteContractProps {
+  type: string;
+  text: string; // You might want to use a more specific type than `Function` based on what you expect
+  amount: number;
+  resolution_year: number;
+  mediator: number;
+}
+
+// export default function WriteContract() {
+export default function WriteContract({
+  type,
+  text,
+  amount,
+  resolution_year,
+  mediator,
+}: WriteContractProps) {
   const { address } = useAccount();
   const { chain } = useNetwork();
   const { contract } = useContract({
