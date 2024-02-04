@@ -54,8 +54,7 @@ mod WagerContract {
         }
 
         fn accept(ref self: ContractState, id: u32) {
-            let length = self.next_id.read();
-            assert(0 <= id && id < length, 'Invalid ID');
+            assert(0 <= id && id < self.next_id.read(), 'Invalid ID');
             assert(self.challengers.read(id).is_zero(), 'Challenger already set');
 
             self.challengers.write(id, get_caller_address());
@@ -68,24 +67,31 @@ mod WagerContract {
         }
 
         fn get_text(self: @ContractState, id: u32) -> felt252 {
+            assert(0 <= id && id < self.next_id.read(), 'Invalid ID');
             self.texts.read(id)
         }
         fn get_amount(self: @ContractState, id: u32) -> u256 {
+            assert(0 <= id && id < self.next_id.read(), 'Invalid ID');
             self.amounts.read(id)
         }
         fn get_resolution_date(self: @ContractState, id: u32) -> u256 {
+            assert(0 <= id && id < self.next_id.read(), 'Invalid ID');
             self.resolution_dates.read(id)
         }
         fn get_predictor(self: @ContractState, id: u32) -> ContractAddress {
+            assert(0 <= id && id < self.next_id.read(), 'Invalid ID');
             self.predictors.read(id) 
         }
         fn get_challenger(self: @ContractState, id: u32) -> ContractAddress {
+            assert(0 <= id && id < self.next_id.read(), 'Invalid ID');
             self.challengers.read(id)
         }
         fn get_mediator(self: @ContractState, id: u32) -> ContractAddress {
+            assert(0 <= id && id < self.next_id.read(), 'Invalid ID');
             self.mediators.read(id)
         } 
         fn get_winner(self: @ContractState, id: u32) -> ContractAddress {
+            assert(0 <= id && id < self.next_id.read(), 'Invalid ID');
             self.mediators.read(id)
         } 
     }
