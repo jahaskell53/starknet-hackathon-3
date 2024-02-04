@@ -3,7 +3,7 @@ import { useAccount, useContractRead } from "@starknet-react/core";
 const hex2ascii = require("hex2ascii");
 
 const testAddress =
-  "0x07bbee915f7e3dfa5f11f70739585657682eb6bf03385cb20aa97e4dd8cd8a63";
+  "0x02a6ccce9c3a4795296672f7001005af02df2dfdd6b7efdaa9ea2c85bfccd21e";
 
 const abi = [
   {
