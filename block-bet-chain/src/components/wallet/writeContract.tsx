@@ -1,93 +1,72 @@
+"use client";
+
 import {
   useAccount,
   useContract,
   useContractWrite,
   useNetwork,
 } from "@starknet-react/core";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { uint256 } from "starknet";
 const erc20ABI = [
   {
-    name: "WagerContractImpl",
+    name: "VotingContractImpl",
     type: "impl",
-    interface_name: "wager_alpha::IWagerContract",
+    interface_name: "voting::IVotingContract",
   },
   {
-    name: "core::integer::u256",
-    type: "struct",
-    members: [
-      {
-        name: "low",
-        type: "core::integer::u128",
-      },
-      {
-        name: "high",
-        type: "core::integer::u128",
-      },
-    ],
-  },
-  {
-    name: "wager_alpha::IWagerContract",
+    name: "voting::IVotingContract",
     type: "interface",
     items: [
       {
-        name: "bet",
+        name: "vote",
         type: "function",
         inputs: [
           {
-            name: "text",
+            name: "vote",
             type: "core::felt252",
-          },
-          {
-            name: "amount",
-            type: "core::integer::u256",
-          },
-          {
-            name: "predictor",
-            type: "core::starknet::contract_address::ContractAddress",
-          },
-          {
-            name: "challenger",
-            type: "core::starknet::contract_address::ContractAddress",
-          },
-          {
-            name: "resolution_date",
-            type: "core::integer::u256",
-          },
-          {
-            name: "mediator",
-            type: "core::starknet::contract_address::ContractAddress",
           },
         ],
         outputs: [],
         state_mutability: "external",
       },
+      {
+        name: "get_votes",
+        type: "function",
+        inputs: [],
+        outputs: [
+          {
+            type: "(core::felt252, core::felt252)",
+          },
+        ],
+        state_mutability: "view",
+      },
     ],
   },
   {
     kind: "enum",
-    name: "wager_alpha::WagerContract::Event",
+    name: "voting::VotingContract::Event",
     type: "event",
     variants: [],
   },
 ];
 const contractAddress =
-  "0x046809c9a9e1a62ac54f63bdca1d13ca6097661b6af96f32fe856cbcd0f10b05";
+  "0x1235451dbfb2d16d6c18a00725bec5ae595556e3348d4350aa8f25757227ee0";
 
 export default function WriteContract() {
   const { address } = useAccount();
   const { chain } = useNetwork();
-
   const { contract } = useContract({
     abi: erc20ABI,
     address: contractAddress,
   });
 
+  const [voteVal, setVoteVal] = useState(0);
+
   const calls = useMemo(() => {
     if (!address || !contract) return [];
-    return contract.populateTransaction["bet"]!(address, {
-      low: 1,
-      high: 0,
-    });
+    const vote = 1;
+    return contract.populateTransaction["vote"]!(vote);
   }, [contract, address]);
 
   const { writeAsync, data, isPending } = useContractWrite({
@@ -96,7 +75,11 @@ export default function WriteContract() {
 
   return (
     <>
-      <button onClick={() => writeAsync()}>Transfer</button>
+      <div>
+        Add value here:
+        <input onChange={(e) => setVoteVal(parseInt(e.target.value))}></input>
+      </div>
+      <button onClick={() => writeAsync()}>Vote</button>
       <p>status: {isPending && <div>Submitting...</div>}</p>
       <p>hash: {data?.transaction_hash}</p>
     </>
