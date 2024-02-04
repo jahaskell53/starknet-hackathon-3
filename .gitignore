@@ -1,2 +1,5 @@
 target
 .snfoundry_cache/
+block-bet-chain/.next
+block-bet-chain/node_modules
+block-bet-chain/package-lock.json
