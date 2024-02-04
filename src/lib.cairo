@@ -1,35 +1,45 @@
+use starknet::ContractAddress;
+// use array:ArrayTrait;
+
 #[starknet::interface]
-trait IWager<TContractState> {
-    fn bet(ref self: TContractState, amount: u256);
-    fn accept(self: @TContractState) -> u256;
+trait IWagerContract<TContractState> {
+    fn bet(ref self: TContractState, text: felt252, amount: u256, predictor: ContractAddress, challenger: ContractAddress, resolution_date: u256, mediator: ContractAddress);
+    // fn accept(self: @TContractState);
 }
 
 #[starknet::contract]
-mod HelloStarknet {
+mod WagerContract {
+    use alexandria_storage::list::{List, ListTrait};
+    use starknet::get_caller_address;
+    use traits::Into;
+    use super::{IWagerContract, ContractAddress};
+
     #[storage]
     struct Storage {
-        text: string,
+        wagers: List<u256>
+        //wagers: Array<u256>
+    }
+
+    struct Wager {
+        text: felt252,
         amount: u256,
-        predictor: address,
-        challenger: address,
+        predictor: ContractAddress,
+        challenger: ContractAddress,
         resolution_date: u256,
-        mediator: address,
+        mediator: ContractAddress,
         id: u256,
     }
 
     #[abi(embed_v0)]
-    impl Wager of super::IWager<ContractState> {
-        fn bet(ref self: ContractState, text: string, amount: u256, predictor: address, challenger: address, resolution_date: u256, mediator: address) {
+    impl WagerContractImpl of super::IWagerContract<ContractState> {
+
+        fn bet(ref self: ContractState, text: felt252, amount: u256, predictor: ContractAddress, challenger: ContractAddress, resolution_date: u256, mediator: ContractAddress) {
             assert(amount != 0, 'Amount cannot be 0');
-            assert(predictor != challenger, "Challenger and predictor must be different");
-            new_wager = new Wager(text, amount, predictor, challenger, resolution_date, mediator);
-            wagers.add(new_wager);
-           # self.balance.write(self.balance.read() + amount);
+            assert(predictor != challenger, 'Parties must be different');
         }
 
-
-        fn accept(self: @ContractState) -> felt252 {
-            self.balance.read()
-        }
+        // fn accept(self: @ContractState) {
+        //     
+        // }
     }
 }
