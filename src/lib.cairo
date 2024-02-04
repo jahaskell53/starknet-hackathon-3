@@ -4,7 +4,12 @@ use starknet::ContractAddress;
 trait IWagerContract<TContractState> {
     fn bet(ref self: TContractState, text: felt252, amount: u256, resolution_date: u256, mediator: ContractAddress);
     fn accept(ref self: TContractState, id: u32);
-    fn get_wager(self: @TContractState, id: u32) -> (felt252, u256, ContractAddress, ContractAddress, ContractAddress, u256);
+    fn get_text(self: @TContractState, id: u32) -> felt252;
+    fn get_amount(self: @TContractState, id: u32) -> u256;
+    fn get_resolution_date(self: @TContractState, id: u32) -> u256;
+    fn get_predictor(self: @TContractState, id: u32) -> ContractAddress; 
+    fn get_challenger(self: @TContractState, id: u32) -> ContractAddress; 
+    fn get_mediator(self: @TContractState, id: u32) -> ContractAddress; 
 }
 
 #[starknet::contract]
@@ -51,8 +56,16 @@ mod WagerContract {
             self.challengers.write(id, get_caller_address());
         }
 
-        fn get_wager(self: ContractState, id: u32) -> (felt252, u256, ContractAddress, ContractAddress, ContractAddress, u256) {
-            (self.texts.read(id), self.amounts.read(id), self.predictors.read(id), self.challengers.read(id), self.mediators.read(id), self.resolution_dates.read(id))
+        fn get_wager(self: @ContractState, id: u32) -> (felt252, u256, ContractAddress, ContractAddress, ContractAddress, u256) {
+            (, self.amounts.read(id), self.predictors.read(id), self.challengers.read(id), self.mediators.read(id), self.resolution_dates.read(id))
         }
+        fn get_text(self: @ContractState, id: u32) -> felt252 {
+            self.texts.read(id)
+        }
+        fn get_amount(self: @TContractState, id: u32) -> u256;
+        fn get_resolution_date(self: @TContractState, id: u32) -> u256;
+        fn get_predictor(self: @TContractState, id: u32) -> ContractAddress; 
+        fn get_challenger(self: @TContractState, id: u32) -> ContractAddress; 
+        fn get_mediator(self: @TContractState, id: u32) -> ContractAddress; 
     }
 }
