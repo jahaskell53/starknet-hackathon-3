@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-stone-800 text-white`}>
         <StarknetProvider>{children}</StarknetProvider>
       </body>
     </html>

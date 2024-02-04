@@ -16,7 +16,7 @@ function WalletConnected() {
     <div className="flex flex-col items-center">
       <span>Connected: {shortenedAddress}</span>
       <button
-        className="p-4 bg-red-100 rounded-md hover:bg-red-300"
+        className="p-4 bg-rose-400 rounded-md hover:bg-rose-500 text-black"
         onClick={() => disconnect()}
       >
         Disconnect from wallet
@@ -30,15 +30,15 @@ function ConnectWallet() {
 
   return (
     <div>
-      <span>Choose a wallet: </span>
+      {/* <span>Choose a wallet: </span> */}
       {connectors.map((connector) => {
         return (
           <Button
             key={connector.id}
             onClick={() => connect({ connector })}
-            className="gap-x-2 mr-2"
+            className="gap-x-2 mr-2 bg-cyan-300 text-black hover:bg-cyan-500"
           >
-            {connector.id}
+            Connect to Wallet!
           </Button>
         );
       })}
