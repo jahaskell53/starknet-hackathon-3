@@ -1,3 +1,4 @@
+"use client";
 import { useAccount, useContractRead } from "@starknet-react/core";
 const hex2ascii = require("hex2ascii");
 
@@ -242,9 +243,10 @@ export default function ReadContract({ func, id }: ReadContractProps) {
   if (isError || !data) return <div>{error?.message}</div>;
   //@ts-ignore
   return (
-    <div>
+    <div className={`text-black ${func[2]}`}>
       {/* {data.toLocaleString()} */}
-      {func[1] === "string" ? processIfBigInt(data) : data.toString()}
+      {func[3] + (func[1] === "string" ? processIfBigInt(data) : data.toString())}
+      
       {/* {String.fromCharCode(32)} */}
       {/* {JSON.stringify(data, (_, v) =>
         typeof v === "bigint" ? v.toString() : v
