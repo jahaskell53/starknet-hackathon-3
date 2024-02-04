@@ -13,9 +13,14 @@ function WalletConnected() {
   }, [address]);
 
   return (
-    <div>
+    <div className="flex flex-col items-center">
       <span>Connected: {shortenedAddress}</span>
-      <button onClick={() => disconnect()}>Disconnect</button>
+      <button
+        className="p-4 bg-red-100 rounded-md hover:bg-red-300"
+        onClick={() => disconnect()}
+      >
+        Disconnect from wallet
+      </button>
     </div>
   );
 }

@@ -1,11 +1,12 @@
 "use client";
 import { ReactNode } from "react";
 
-import { devnet, goerli, mainnet } from "@starknet-react/chains";
+import { Chain, devnet, goerli, mainnet } from "@starknet-react/chains";
 import {
   StarknetConfig,
   argent,
   braavos,
+  jsonRpcProvider,
   publicProvider,
   useInjectedConnectors,
   voyager,
@@ -21,10 +22,17 @@ export function StarknetProvider({ children }: { children: ReactNode }) {
     order: "random",
   });
 
+  function rpc(chain: Chain) {
+    return {
+      nodeUrl: `https://starknet-testnet.public.blastapi.io/rpc/v0_6`,
+    };
+  }
+
   return (
     <StarknetConfig
       chains={[mainnet]}
-      provider={publicProvider()}
+      // provider={publicProvider()}
+      provider={jsonRpcProvider({ rpc })}
       connectors={connectors}
       explorer={voyager}
     >
