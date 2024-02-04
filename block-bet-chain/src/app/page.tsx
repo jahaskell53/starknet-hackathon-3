@@ -8,6 +8,7 @@ import Tabs from "@/components/Tabs";
 import Image from "next/image";
 import { useState } from "react";
 import { Tab } from "@headlessui/react";
+import AddBetModal from "@/components/wallet/addBetModal";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -15,51 +16,59 @@ function classNames(...classes: string[]) {
 
 export default function Home() {
   const { address } = useAccount();
-  const idList: number[] = [0, 1, 2];
+  const idList: number[] = [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+  ];
+  const [showContract, setShowContract] = useState(false);
+
   const readFunctions: string[][] = [
-    ["get_text", "string", "text-center text-md font-medium leading-5", "Prediction: "],
-    ["get_amount", "number", "mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500", "Amount: "],
-    ["get_resolution_date", "number", "mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500", "Date: "],
-    ["get_predictor", "number", "mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500", "Predictor: "],
-    ["get_challenger", "number", "mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500", "Challenger: "],
-    ["get_mediator", "number", "mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500", "Mediator: "],
-    ["get_winner", "number", "mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500", "Winner: "],
+    [
+      "get_text",
+      "string",
+      "text-center text-md font-medium leading-5",
+      "Prediction: ",
+    ],
+    [
+      "get_amount",
+      "number",
+      "mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500",
+      "Amount: ",
+    ],
+    [
+      "get_resolution_date",
+      "number",
+      "mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500",
+      "Date: ",
+    ],
+    [
+      "get_predictor",
+      "number",
+      "mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500",
+      "Predictor: ",
+    ],
+    [
+      "get_challenger",
+      "number",
+      "mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500",
+      "Challenger: ",
+    ],
+    [
+      "get_mediator",
+      "number",
+      "mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500",
+      "Mediator: ",
+    ],
+    [
+      "get_winner",
+      "number",
+      "mt-1 flex space-x-1 text-xs font-normal leading-4 text-gray-500",
+      "Winner: ",
+    ],
   ];
 
-  let [categories] = useState({
-    "All Contracts": [
-      {
-        id: 1,
-        title: "Does drinking coffee make you smarter?",
-        date: "5h ago",
-        commentCount: 5,
-        shareCount: 2,
-      },
-      {
-        id: 2,
-        title: "So you've bought coffee... now what?",
-        date: "2h ago",
-        commentCount: 3,
-        shareCount: 2,
-      },
-    ],
-    "My Contracts": [
-      {
-        id: 1,
-        title: "Is tech making coffee better or worse?",
-        date: "Jan 7",
-        commentCount: 29,
-        shareCount: 16,
-      },
-      {
-        id: 2,
-        title: "The most innovative things happening in coffee",
-        date: "Mar 19",
-        commentCount: 24,
-        shareCount: 12,
-      },
-    ],
-  });
+  function addContractHandler() {
+    setShowContract(!showContract); // Toggle the visibility
+  }
 
   return (
     // items-center justify-center
@@ -76,10 +85,23 @@ export default function Home() {
         <WalletBar />
       </div>
       <div className="flex flex-col items-center">
-        <div className="flex flex-col items-end">
-          <button className="my-3 bg-cyan-300 rounded-md p-2 text-black hover:bg-cyan-400">
+        <div className="flex flex-col ">
+          <button
+            className="my-3 bg-cyan-300 rounded-md p-2 text-black hover:bg-cyan-400"
+            onClick={() => addContractHandler()}
+          >
             <p>Add New Contract</p>
           </button>
+          {showContract && (
+            <AddBetModal
+              type="newContract"
+              text=""
+              amount={1}
+              resolution_year={2024}
+              mediator={1}
+            />
+          )}
+
           {/* <Tabs /> */}
 
           <div className="w-full max-w-md px-2 sm:px-0 text-black">
@@ -145,28 +167,29 @@ export default function Home() {
             </Tab.Group>
           </div>
         </div>
-       <ul className={classNames(
-  "rounded-xl bg-gray-200 p-3",
-  "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
-  "relative rounded-md p-3 text-black"
-)}>
-  {idList.map((currId, index) => (
-    <li key={`id-${currId}`} className="relative rounded-md p-3 hover:bg-gray-100 text-black">
-      {readFunctions.map((currFunc, funcIndex) => (
-        // Assuming you want to list each readFunction as a separate list item
-        <ul key={`func-${currId}-${funcIndex}`} className="space-y-2">
-          <li>
-            <ReadContract
-              func={currFunc}
-              id={currId}
-            />
-          </li>
+        <ul
+          className={classNames(
+            "rounded-xl bg-gray-200 p-3",
+            "ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2",
+            "relative rounded-md p-3 text-black"
+          )}
+        >
+          {idList.map((currId, index) => (
+            <li
+              key={`id-${currId}`}
+              className="relative rounded-md p-3 hover:bg-gray-100 text-black"
+            >
+              {readFunctions.map((currFunc, funcIndex) => (
+                // Assuming you want to list each readFunction as a separate list item
+                <ul key={`func-${currId}-${funcIndex}`} className="space-y-2">
+                  <li>
+                    <ReadContract func={currFunc} id={currId} />
+                  </li>
+                </ul>
+              ))}
+            </li>
+          ))}
         </ul>
-      ))}
-    </li>
-  ))}
-</ul>
-
       </div>
     </main>
   );

@@ -1,7 +1,13 @@
 "use client";
-import { useAccount, useContractRead } from "@starknet-react/core";
-const hex2ascii = require("hex2ascii");
 
+import {
+  useAccount,
+  useContract,
+  useContractWrite,
+  useNetwork,
+} from "@starknet-react/core";
+import { useEffect, useMemo, useState } from "react";
+import { uint256 } from "starknet";
 const testAddress =
   "0x0795d7470221e243e3da6475c463f313ec8884d5df2f7fb3e0259ff8fbea06ba";
 
@@ -208,52 +214,79 @@ const abi = [
   },
 ];
 
-function convertToString(bigintInput: bigint) {
-  // Convert the bigint to a string to work with its digits
-  const stringInput = bigintInput.toString(16);
-  return hex2ascii(stringInput);
+interface WriteContractProps {
+  type: string;
+  text: string; // You might want to use a more specific type than `Function` based on what you expect
+  amount: number;
+  resolution_year: number;
+  mediator: number;
 }
 
-function processIfBigInt(
-  data: string | bigint | true | { [key: string]: any }
-): string {
-  // Check if data is of type bigint, then process
-  const result = typeof data === "bigint" ? convertToString(data) : "";
-
-  return result ?? "";
-}
-
-interface ReadContractProps {
-  func: string[]; // You might want to use a more specific type than `Function` based on what you expect
-  id: number;
-}
-
-export default function ReadContract({ func, id }: ReadContractProps) {
+// export default function WriteContract() {
+export default function AddBetModal({
+  type,
+  text,
+  amount,
+  resolution_year,
+  mediator,
+}: WriteContractProps) {
   const { address } = useAccount();
-
-  const { data, isError, isLoading, error } = useContractRead({
-    functionName: func[0],
-    args: [id],
-    abi,
+  const { chain } = useNetwork();
+  const { contract } = useContract({
+    abi: abi,
     address: testAddress,
-    watch: true,
   });
 
-  if (isLoading) return <div className="invisible"></div>;
-  // if (isError || !data) return <div>{error?.message}</div>;
-  if (isError || !data) return <div className="invisible"></div>;
+  const [txt, setText] = useState("txt");
+  const [amt, setAmt] = useState(1);
+  const [resDate, setResDate] = useState(2024);
+  const [med, setMediator] = useState(0);
 
-  //@ts-ignore
+  const calls = useMemo(() => {
+    if (!address || !contract) return [];
+    const vote = 1;
+    // return contract.populateTransaction["vote"]!(vote);
+    // return contract.populateTransaction["bet"]!("veganInFuture", 888, 888, 1);
+    console.log(txt, amt, resDate, med);
+
+    return contract.populateTransaction["bet"]!(txt, 888, 123, 1);
+  }, [contract, address, txt, amt, resDate, med]);
+
+  function sampleHandler() {
+    writeAsync();
+  }
+
+  const { writeAsync, data, isPending } = useContractWrite({
+    calls,
+  });
+
   return (
-    <div className={`text-black ${func[2]}`}>
-      {/* {data.toLocaleString()} */}
-      {func[3] +
-        (func[1] === "string" ? processIfBigInt(data) : data.toString())}
-
-      {/* {String.fromCharCode(32)} */}
-      {/* {JSON.stringify(data, (_, v) =>
-        typeof v === "bigint" ? v.toString() : v
-      )} */}
-    </div>
+    <>
+      <form className="flex flex-col">
+        <input
+          onChange={(e) => setText(e.target.value)}
+          className="text-black mb-2"
+          placeholder="text"
+        ></input>
+        <input
+          onChange={(e) => setAmt(parseInt(e.target.value))}
+          className="text-black mb-2"
+          placeholder="amount"
+        ></input>
+        <input
+          onChange={(e) => setResDate(parseInt(e.target.value))}
+          className="text-black mb-2"
+          placeholder="resolution_year"
+        ></input>
+        <input
+          onChange={(e) => setMediator(parseInt(e.target.value))}
+          className="text-black mb-2"
+          placeholder="mediator"
+        ></input>
+      </form>
+      <button onClick={() => sampleHandler()}>Vote</button>
+      <p>status: {isPending && <div>Submitting...</div>}</p>
+      <p>hash: {data?.transaction_hash}</p>
+    </>
   );
 }
