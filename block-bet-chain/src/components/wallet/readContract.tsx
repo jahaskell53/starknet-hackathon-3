@@ -222,12 +222,17 @@ function processIfBigInt(
   return result ?? "";
 }
 
-export default function ReadContract() {
+interface ReadContractProps {
+  func: string[]; // You might want to use a more specific type than `Function` based on what you expect
+  id: number;
+}
+
+export default function ReadContract({ func, id }: ReadContractProps) {
   const { address } = useAccount();
 
   const { data, isError, isLoading, error } = useContractRead({
-    functionName: "get_text",
-    args: [1],
+    functionName: func[0],
+    args: [id],
     abi,
     address: testAddress,
     watch: true,
@@ -239,7 +244,7 @@ export default function ReadContract() {
   return (
     <div>
       {/* {data.toLocaleString()} */}
-      {processIfBigInt(data)}
+      {func[1] === "string" ? processIfBigInt(data) : data.toString()}
       {/* {String.fromCharCode(32)} */}
       {/* {JSON.stringify(data, (_, v) =>
         typeof v === "bigint" ? v.toString() : v
