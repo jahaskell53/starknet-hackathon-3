@@ -25,7 +25,7 @@ use starknet::ContractAddress;
 
 #[starknet::interface]
 trait IWagerContract<TContractState> {
-    fn bet(ref self: TContractState, text: felt252, amount: u256, resolution_date: u256, mediator: ContractAddress);//, token_address: IERC20);
+    fn bet(ref self: TContractState, text: felt252, amount: u256, resolution_date: u256, mediator: ContractAddress) -> u32;//, token_address: IERC20);
     fn accept(ref self: TContractState, id: u32);
     fn decide(ref self: TContractState, id: u32, winner: ContractAddress);
 
@@ -116,7 +116,7 @@ mod WagerContract {
     #[abi(embed_v0)]
     impl WagerContractImpl of super::IWagerContract<ContractState> {
 
-         fn bet(ref self: ContractState, text: felt252, amount: u256, resolution_date: u256, mediator: ContractAddress) {//, token_address: IERC20) {
+         fn bet(ref self: ContractState, text: felt252, amount: u256, resolution_date: u256, mediator: ContractAddress) -> u32 {//, token_address: IERC20) {
             assert(amount != 0, 'Amount cannot be 0');
             assert(mediator != get_caller_address(), 'Amount cannot be 0');
 
@@ -129,6 +129,7 @@ mod WagerContract {
             self.resolution_dates.write(id, amount);
 
             self.next_id.write(id + 1);
+            id 
         }
 
         fn accept(ref self: ContractState, id: u32) {
