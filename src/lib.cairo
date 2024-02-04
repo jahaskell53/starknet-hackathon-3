@@ -1,5 +1,26 @@
 use starknet::ContractAddress;
 
+#[derive(Drop, Serde, starknet::Store)]
+enum target {
+    blockTime: u128,
+    amount: u128,
+}
+
+#[starknet::interface]
+trait IERC20<TContractState> {
+    fn name(self: @TContractState) -> felt252;
+    fn symbol(self: @TContractState) -> felt252;
+    fn decimals(self: @TContractState) -> u8;
+    fn total_supply(self: @TContractState) -> u256;
+    fn balanceOf(self: @TContractState, account: ContractAddress) -> u256;
+    fn allowance(self: @TContractState, owner: ContractAddress, spender: ContractAddress) -> u256;
+    fn transfer(ref self: TContractState, recipient: ContractAddress, amount: u256) -> bool;
+    fn transferFrom(
+        ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+    ) -> bool;
+    fn approve(ref self: TContractState, spender: ContractAddress, amount: u256) -> bool;
+}
+
 #[starknet::interface]
 trait IWagerContract<TContractState> {
     fn bet(ref self: TContractState, text: felt252, amount: u256, resolution_date: u256, mediator: ContractAddress);
@@ -20,9 +41,12 @@ trait IWagerContract<TContractState> {
 mod WagerContract {
 
     use alexandria_storage::list::{List, ListTrait};
-    use starknet::get_caller_address;
     use traits::Into;
-    use super::{IWagerContract, ContractAddress};
+    use core::option::OptionTrait;
+    use core::traits::TryInto;
+    use starknet::{get_caller_address, ContractAddress, get_contract_address, Zeroable, get_block_timestamp, contract_address_const};
+
+    use super::{IERC20Dispatcher, IERC20DispatcherTrait, target};
 
     #[storage]
     struct Storage {
@@ -34,6 +58,27 @@ mod WagerContract {
         winners: LegacyMap::<u32, ContractAddress>,
         resolution_dates: LegacyMap::<u32, u256>,
         next_id: u32,
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState) {
+        self.texts.write(0, 'we win hackathon');
+        self.amounts.write(0, 200);
+        self.resolution_dates.write(0, 2024);
+        self.predictors.write(0, contract_address_const::<0>());
+        self.challengers.write(0, contract_address_const::<0>());
+        self.mediators.write(0, contract_address_const::<0>());
+        self.winners.write(0, contract_address_const::<0>());
+        self.next_id.write(1);
+
+        self.texts.write(1, 'hit pubertty');
+        self.amounts.write(1, 200);
+        self.resolution_dates.write(1, 2030);
+        self.predictors.write(1, contract_address_const::<0>());
+        self.challengers.write(1, contract_address_const::<0>());
+        self.mediators.write(1, contract_address_const::<0>());
+        self.winners.write(1, contract_address_const::<0>());
+        self.next_id.write(2);
     }
 
     #[abi(embed_v0)]
