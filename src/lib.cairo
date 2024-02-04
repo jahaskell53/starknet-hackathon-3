@@ -1,35 +1,86 @@
+use starknet::ContractAddress;
+
 #[starknet::interface]
-trait IWager<TContractState> {
-    fn bet(ref self: TContractState, amount: u256);
-    fn accept(self: @TContractState) -> u256;
+trait IWagerContract<TContractState> {
+    fn bet(ref self: TContractState, text: felt252, amount: u256, challenger: ContractAddress, resolution_date: u256, mediator: ContractAddress);
+    fn accept(ref self: TContractState, id: u32);
+    // fn view(self: @TContractState) -> List<Wager>;
 }
 
 #[starknet::contract]
-mod HelloStarknet {
+mod WagerContract {
+
+    use alexandria_storage::list::{List, ListTrait};
+    use starknet::get_caller_address;
+    use traits::Into;
+    use super::{IWagerContract, ContractAddress};
+
     #[storage]
     struct Storage {
-        text: string,
+        wagers: List<Wager>,
+        next_id: u32,
+    }
+
+    #[derive(Copy, Drop, Serde, starknet::Store)]
+    struct Wager {
+        text: felt252,
         amount: u256,
-        predictor: address,
-        challenger: address,
+        predictor: ContractAddress,
+        challenger: ContractAddress,
         resolution_date: u256,
-        mediator: address,
-        id: u256,
+        mediator: ContractAddress,
+        id: u32,
+        // parties: LegacyMap::<ContractAddress, bool>,
     }
 
     #[abi(embed_v0)]
-    impl Wager of super::IWager<ContractState> {
-        fn bet(ref self: ContractState, text: string, amount: u256, predictor: address, challenger: address, resolution_date: u256, mediator: address) {
+    impl WagerContractImpl of super::IWagerContract<ContractState> {
+
+         fn bet(ref self: ContractState, text: felt252, amount: u256, challenger: ContractAddress, resolution_date: u256, mediator: ContractAddress) {
             assert(amount != 0, 'Amount cannot be 0');
-            assert(predictor != challenger, "Challenger and predictor must be different");
-            new_wager = new Wager(text, amount, predictor, challenger, resolution_date, mediator);
-            wagers.add(new_wager);
-           # self.balance.write(self.balance.read() + amount);
+
+            let mut current_wagers_list = self.wagers.read();
+            let length = self.next_id.read();
+
+            let mut new_wager = Wager{  text: text, amount: amount, predictor: get_caller_address(), 
+                                    challenger: challenger, resolution_date: resolution_date, mediator: mediator, id: length };
+            current_wagers_list.append(new_wager);
+            
+            self.next_id.write(length + 1);
         }
 
+        fn accept(ref self: ContractState, id: u32) {
+            let mut current_wagers_list = self.wagers.read();
+            let length = self.next_id.read();
+            assert(id < length, 'Id must be within length');
 
-        fn accept(self: @ContractState) -> felt252 {
-            self.balance.read()
+
+            let current_wager = current_wagers_list[id];
+            // assert(current_wager.challenger.read() == 0x0, 'Already a challenger');
+
+            // Read from involved parties, challenger shouldn't exist yet
+            // Afterward, set involvement to true
+            // let challenger = get_caller_address();
+            // assert(!current_wager.parties.read(challenger), 'party already involved');
+            // current_wager.parties.write(challenger, true);
+
+            // let new_wager = Wager {     text: current_wager.text, 
+                                        //amount: current_wager.amount, 
+                                        //predictor: current_wager.predictor, 
+                                        //challenger: get_caller_address(), 
+                                        //resolution_date: current_wager.resolution_date, 
+                                        //mediator: current_wager.mediator, 
+                                        //id: current_wager.length };
+            // let new_wager = Wager{  text: current_wager.text, amount: current_wager.amount, predictor: current_wager.predictor, 
+            //                        challenger: get_caller_address(), resolution_date: current_wager.resolution_date, mediator: current_wager.mediator, id: current_wager.length };
+            current_wager.challenger.write(get_caller_address());
+
+            current_wager_list.set(id, new_wager);
         }
+
+        // View the list of wagers
+        //fn view(self: @ContractState) -> List<Wager> {
+        //    self.wagers.read();
+        //}
     }
 }
